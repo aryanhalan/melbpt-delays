@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Melbourne Public Transport Delays</title>
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --train:  #2563eb;
+      --tram:   #16a34a;
+      --vline:  #7c3aed;
+      --bus:    #ea580c;
+      --red:    #dc2626;
+      --ink:    #1c1c1c;
+      --mid:    #555;
+      --light:  #888;
+      --rule:   #ddd;
+      --bg:     #fafaf8;
+      --white:  #ffffff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    /* ── HEADER ── */
+    .site-header {
+      border-bottom: 3px solid var(--ink);
+      padding: 10px 0 0;
+      background: var(--white);
+    }
+    .header-meta {
+      max-width: 960px; margin: 0 auto;
+      padding: 0 24px;
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 11px; letter-spacing: 0.07em; color: var(--light);
+      text-transform: uppercase; border-bottom: 1px solid var(--rule);
+      padding-bottom: 8px; margin-bottom: 20px;
+    }
+    .header-main { max-width: 960px; margin: 0 auto; padding: 0 24px 24px; }
+    .header-main h1 {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 600; line-height: 1.15; letter-spacing: -0.01em;
+      margin-bottom: 12px;
+    }
+    .header-main p {
+      font-size: 16px; color: var(--mid); font-weight: 300;
+      max-width: 620px; line-height: 1.6;
+    }
+
+    /* ── STAT ROW ── */
+    .stat-row {
+      background: var(--ink); color: #eee;
+      border-bottom: 2px solid var(--ink);
+    }
+    .stat-inner {
+      max-width: 960px; margin: 0 auto; padding: 0 24px;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+    }
+    .stat-item {
+      padding: 20px 16px; border-right: 1px solid #333;
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Source Serif 4', serif;
+      font-size: 28px; font-weight: 600; line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-label { font-size: 11px; color: #aaa; line-height: 1.4; }
+
+    /* ── LEGEND BAR ── */
+    .legend-bar {
+      background: var(--white); border-bottom: 1px solid var(--rule);
+      padding: 10px 0;
+    }
+    .legend-inner {
+      max-width: 960px; margin: 0 auto; padding: 0 24px;
+      display: flex; gap: 24px; align-items: center; flex-wrap: wrap;
+    }
+    .legend-label { font-size: 11px; color: var(--light); text-transform: uppercase; letter-spacing: 0.07em; margin-right: 4px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── MAIN WRAPPER ── */
+    .page { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── SECTIONS ── */
+    section { padding: 44px 0; border-bottom: 1px solid var(--rule); }
+    section:last-of-type { border-bottom: none; }
+    .section-tag {
+      font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--light); margin-bottom: 6px;
+    }
+    section h2 {
+      font-family: 'Source Serif 4', serif;
+      font-size: 22px; font-weight: 600; margin-bottom: 8px;
+    }
+    .section-intro {
+      font-size: 14px; color: var(--mid); font-weight: 300;
+      max-width: 640px; margin-bottom: 28px; line-height: 1.7;
+    }
+
+    /* ── CALLOUT ── */
+    .callout {
+      border-left: 3px solid var(--ink);
+      padding: 12px 16px; background: var(--white);
+      font-size: 14px; margin-bottom: 28px; line-height: 1.6;
+    }
+    .callout strong { font-weight: 600; }
+
+    /* ── CHART GRID ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+    .full { grid-column: 1 / -1; }
+    @media (max-width: 680px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+    /* ── CHART CARD ── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--rule);
+      padding: 18px 18px 14px;
+    }
+    .card-head { margin-bottom: 12px; }
+    .card-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+    .card-sub { font-size: 11px; color: var(--light); }
+    .card-note {
+      font-size: 12px; color: var(--mid);
+      margin-top: 10px; padding-top: 10px;
+      border-top: 1px solid #eee; line-height: 1.55;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--ink); color: #999;
+      padding: 36px 0; font-size: 12px;
+    }
+    .footer-inner {
+      max-width: 960px; margin: 0 auto; padding: 0 24px;
+      display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 32px;
+    }
+    footer h4 { color: #eee; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+    footer p { margin-bottom: 5px; line-height: 1.6; }
+    footer a { color: #999; }
+    .footer-divider {
+      max-width: 960px; margin: 20px auto 0; padding: 16px 24px 0;
+      border-top: 1px solid #333;
+      display: flex; justify-content: space-between; font-size: 11px;
+    }
+    @media (max-width: 680px) { .footer-inner { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-meta">
+    <span>FIT2179 Data Visualisation 2 — Monash University, Semester 1 2026</span>
+    <span>Aryan Halan</span>
+  </div>
+  <div class="header-main">
+    <h1>Is Melbourne's Public Transport<br>Running on Time?</h1>
+    <p>A data-driven look at punctuality and reliability across Melbourne's trains, trams, regional rail, and buses — May 2025 to April 2026 — using official Transport Victoria data.</p>
+  </div>
+</header>
+
+<!-- STAT ROW -->
+<div class="stat-row">
+  <div class="stat-inner">
+    <div class="stat-item">
+      <div class="stat-num" style="color:#f87171">83.7%</div>
+      <div class="stat-label">V/Line punctuality, Apr 2026<br>(target: 92%)</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" style="color:#86efac">93.4%</div>
+      <div class="stat-label">Metro Train punctuality, Apr 2026<br>(target: 92%)</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" style="color:#fde68a">83.9%</div>
+      <div class="stat-label">Tram on-time rate, Apr 2026<br>(target: 82%)</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" style="color:#93c5fd">16</div>
+      <div class="stat-label">Metro train lines<br>analysed</div>
+    </div>
+  </div>
+</div>
+
+<!-- LEGEND BAR -->
+<div class="legend-bar">
+  <div class="legend-inner">
+    <span class="legend-label">Colour key:</span>
+    <span class="legend-item"><span class="legend-dot" style="background:var(--train)"></span>Metro Train</span>
+    <span class="legend-item"><span class="legend-dot" style="background:var(--tram)"></span>Metro Tram</span>
+    <span class="legend-item"><span class="legend-dot" style="background:var(--vline)"></span>V/Line (Regional)</span>
+    <span class="legend-item"><span class="legend-dot" style="background:var(--bus)"></span>Metro Bus</span>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- SECTION 1 -->
+  <section>
+    <div class="section-tag">01 — Overview</div>
+    <h2>How each mode performs against its government target</h2>
+    <p class="section-intro">Transport Victoria sets minimum punctuality targets for each operator. A service is counted as "on time" if it arrives within 4 minutes and 59 seconds of its scheduled time. The yellow tick marks on each chart show where the target sits — green bars are meeting it, red bars are not.</p>
+
+    <div class="callout">
+      <strong>Key finding:</strong> V/Line regional trains are the only mode consistently missing their 92% punctuality target, sitting 8.3 percentage points below threshold in April 2026. Interestingly, all modes meet their <em>reliability</em> targets — trains are mostly running, they're just running late.
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Punctuality by Mode — April 2026</div>
+          <div class="card-sub">% of services arriving on time · yellow tick = government target</div>
+        </div>
+        <div id="c1"></div>
+        <div class="card-note">Each bar shows one mode's on-time rate. V/Line (red bar) is far below its 92% target. Metro Train, Tram, and Bus are all above theirs.</div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Reliability by Mode — April 2026</div>
+          <div class="card-sub">% of scheduled services actually run · yellow tick = target</div>
+        </div>
+        <div id="c2"></div>
+        <div class="card-note">Reliability measures whether services ran at all — separate from whether they were on time. All modes are meeting their reliability targets despite punctuality shortfalls.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2 -->
+  <section>
+    <div class="section-tag">02 — Monthly Trends</div>
+    <h2>12 months of punctuality — patterns and a worrying decline</h2>
+    <p class="section-intro">Tracking performance from May 2025 to April 2026 reveals consistent seasonal dips in summer (December) and a sharp recent decline in V/Line. Click any mode in the legend of the main chart to highlight it.</p>
+
+    <div class="card full" style="margin-bottom:20px">
+      <div class="card-head">
+        <div class="card-title">Monthly Punctuality — All Modes (May 2025 – April 2026)</div>
+        <div class="card-sub">Click a mode in the legend to highlight it · hover for exact values</div>
+      </div>
+      <div id="c3"></div>
+      <div class="card-note">All four modes dip in December 2025, reflecting summer heat delays and reduced timetables over the holiday period. V/Line's April 2026 reading of 83.7% is its worst in the entire 12-month window — a troubling recent drop.</div>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Metro Train — Monthly</div>
+          <div class="card-sub">Stays in a tight band around 94%</div>
+        </div>
+        <div id="c4"></div>
+        <div class="card-note">Metro trains are the most consistent mode — fluctuating within just 2.5 percentage points over the year.</div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Metro Tram — Monthly</div>
+          <div class="card-sub">Road congestion drives variation</div>
+        </div>
+        <div id="c5"></div>
+        <div class="card-note">Tram punctuality is more variable than trains, as trams share road space with other traffic and are affected by congestion.</div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">V/Line — Monthly</div>
+          <div class="card-sub">Never reaches its 92% target</div>
+        </div>
+        <div id="c6"></div>
+        <div class="card-note">V/Line missed its 92% punctuality target every single month in this 12-month period. The April 2026 figure is the lowest point.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3 -->
+  <section>
+    <div class="section-tag">03 — Metro Train Lines</div>
+    <h2>Not all lines are equal — outer suburbs suffer most</h2>
+    <p class="section-intro">Metro Trains Melbourne operates 16 lines. Lines extending to outer suburbs consistently underperform inner-city routes, likely due to longer distances, shared freight track, and fewer redundancy options when things go wrong.</p>
+
+    <div class="card full" style="margin-bottom:20px">
+      <div class="card-head">
+        <div class="card-title">Peak Punctuality by Train Line</div>
+        <div class="card-sub">Sorted worst to best · colour shows punctuality level (red = poor, green = good) · hover for details</div>
+      </div>
+      <div id="c7"></div>
+      <div class="card-note">Stony Point (85.2%) and Mernda (86.5%) are the two worst-performing lines. Both extend well beyond 35km from the CBD. Sandringham (94.1%) and Williamstown (93.8%) top the list — both are shorter, inner-suburban routes.</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Annual Cancellations by Line — 2025</div>
+          <div class="card-sub">Total cancelled services, sorted highest to lowest</div>
+        </div>
+        <div id="c8"></div>
+        <div class="card-note">Stony Point has the most cancellations (723) largely because it runs diesel single-car trains and lacks the redundancy of the electrified metro network. Mernda, Hurstbridge, and Pakenham — all outer lines — each exceed 450 cancellations.</div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Peak vs Off-Peak Punctuality by Line</div>
+          <div class="card-sub">Every line performs better during off-peak hours</div>
+        </div>
+        <div id="c9"></div>
+        <div class="card-note">Each dot represents one train line. All points fall above the diagonal, confirming that every line runs more on time during off-peak hours than at peak. The gap averages 4.7 percentage points across all lines.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4 -->
+  <section>
+    <div class="section-tag">04 — Geographic Pattern</div>
+    <h2>The further from the city, the worse the delays</h2>
+    <p class="section-intro">Rather than a traditional map, this chart plots each line's terminus distance from the CBD against its peak punctuality. The pattern is clear: lines that extend further from the city tend to be less punctual and record more cancellations.</p>
+
+    <div class="card full">
+      <div class="card-head">
+        <div class="card-title">Train Line Performance vs Distance from CBD</div>
+        <div class="card-sub">Each bubble = one train line · bubble size = annual cancellations · colour = punctuality (red poor → green good) · hover for details</div>
+      </div>
+      <div id="c10"></div>
+      <div class="card-note">There is a clear negative trend: as distance increases, punctuality falls and cancellations rise. Stony Point (62km, diesel operation) is the extreme outlier. Sandringham and Williamstown — short inner-city routes — sit at the top-left, with high punctuality and few cancellations.</div>
+    </div>
+  </section>
+
+  <!-- SECTION 5 -->
+  <section>
+    <div class="section-tag">05 — Deeper Analysis</div>
+    <h2>Where things are getting better or worse</h2>
+    <p class="section-intro">A heatmap of monthly target achievement and a year-on-year comparison show that V/Line is getting significantly worse, while Metro Bus is the only mode showing genuine improvement.</p>
+
+    <div class="grid-2" style="margin-bottom:20px">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Target Achievement Heatmap — 12 Months</div>
+          <div class="card-sub">Green = above target · Red = below target · hover for exact value</div>
+        </div>
+        <div id="c11"></div>
+        <div class="card-note">V/Line is entirely red across all 12 months — it never hit its target once. Metro Tram dipped below target in December 2025. Metro Train, Bus remained consistently above their targets.</div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Year-on-Year Change (Apr 2025 vs Apr 2026)</div>
+          <div class="card-sub">Change in punctuality in percentage points</div>
+        </div>
+        <div id="c12"></div>
+        <div class="card-note">V/Line has dropped 4.7 percentage points year-on-year — the steepest fall of any mode. Metro Bus is the only mode showing improvement (+0.9pp), quietly outperforming all others.</div>
+      </div>
+    </div>
+
+    <div class="card full">
+      <div class="card-head">
+        <div class="card-title">Average Delay per Late Service by Train Line</div>
+        <div class="card-sub">Minutes late per delayed service · colour-coded by line group · hover for details</div>
+      </div>
+      <div id="c13"></div>
+      <div class="card-note">When a service is late, how late is it? Stony Point passengers face an average of 5.8 minutes per delayed service — nearly 3× the Sandringham experience (2.1 min). Outer lines not only have more delays, but those delays are also longer.</div>
+    </div>
+  </section>
+
+</div><!-- end .page -->
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <h4>About this visualisation</h4>
+      <p>This page analyses punctuality and reliability across Melbourne's public transport network — metro trains, trams, V/Line regional trains, and metropolitan buses — from May 2025 to April 2026.</p>
+
+    </div>
+    <div>
+      <h4>Data Sources</h4>
+      <p><strong style="color:#eee">Source 1</strong><br>Transport Victoria — Monthly Network Performance<br><a href="https://www.vic.gov.au/public-transport-monthly-performance">vic.gov.au</a></p>
+      <br>
+      <p><strong style="color:#eee">Source 2</strong><br>Transport Victoria Open Data — Metro Train Line Performance<br><a href="https://discover.data.vic.gov.au">discover.data.vic.gov.au</a></p>
+    </div>
+    <div>
+      <h4>Author</h4>
+      <p>Aryan Halan</p>
+      <p>FIT2179 Data Visualisation 2</p>
+      <p>Monash University, Clayton</p>
+      <p>Semester 1, 2026</p>
+      <br>
+      <p><a href="https://github.com/aryanhalan/melbpt-delays">github.com/aryanhalan/melbpt-delays</a></p>
+    </div>
+  </div>
+  <div class="footer-divider">
+    <span>© 2026 Aryan Halan · FIT2179 Monash University</span>
+    <span>Built with Vega-Lite · Data: Transport Victoria (vic.gov.au)</span>
+  </div>
+</footer>
+
+<script>
+// ── ALL DATA INLINE ──────────────────────────────────────────────
+var MONTHS = ["May-25","Jun-25","Jul-25","Aug-25","Sep-25","Oct-25","Nov-25","Dec-25","Jan-26","Feb-26","Mar-26","Apr-26"];
+
+var APRIL = [
+  {mode:"V/Line Train", pct:83.7, target:92.0, rel:97.0, rel_target:96.0},
+  {mode:"Metro Tram",   pct:83.9, target:82.0, rel:98.8, rel_target:98.5},
+  {mode:"Metro Bus",    pct:88.5, target:86.0, rel:99.3, rel_target:98.0},
+  {mode:"Metro Train",  pct:93.4, target:92.0, rel:98.5, rel_target:98.5}
+];
+
+var MONTHLY = [
+  {month:"May-25",mode:"Metro Train",pct:94.1},{month:"Jun-25",mode:"Metro Train",pct:93.8},
+  {month:"Jul-25",mode:"Metro Train",pct:93.2},{month:"Aug-25",mode:"Metro Train",pct:94.5},
+  {month:"Sep-25",mode:"Metro Train",pct:94.7},{month:"Oct-25",mode:"Metro Train",pct:95.1},
+  {month:"Nov-25",mode:"Metro Train",pct:94.9},{month:"Dec-25",mode:"Metro Train",pct:92.6},
+  {month:"Jan-26",mode:"Metro Train",pct:93.1},{month:"Feb-26",mode:"Metro Train",pct:94.0},
+  {month:"Mar-26",mode:"Metro Train",pct:94.3},{month:"Apr-26",mode:"Metro Train",pct:93.4},
+  {month:"May-25",mode:"Metro Tram",pct:84.2},{month:"Jun-25",mode:"Metro Tram",pct:83.7},
+  {month:"Jul-25",mode:"Metro Tram",pct:82.9},{month:"Aug-25",mode:"Metro Tram",pct:84.1},
+  {month:"Sep-25",mode:"Metro Tram",pct:84.8},{month:"Oct-25",mode:"Metro Tram",pct:85.2},
+  {month:"Nov-25",mode:"Metro Tram",pct:84.5},{month:"Dec-25",mode:"Metro Tram",pct:81.9},
+  {month:"Jan-26",mode:"Metro Tram",pct:82.4},{month:"Feb-26",mode:"Metro Tram",pct:83.1},
+  {month:"Mar-26",mode:"Metro Tram",pct:82.1},{month:"Apr-26",mode:"Metro Tram",pct:83.9},
+  {month:"May-25",mode:"V/Line Train",pct:88.1},{month:"Jun-25",mode:"V/Line Train",pct:87.6},
+  {month:"Jul-25",mode:"V/Line Train",pct:86.9},{month:"Aug-25",mode:"V/Line Train",pct:88.4},
+  {month:"Sep-25",mode:"V/Line Train",pct:87.2},{month:"Oct-25",mode:"V/Line Train",pct:88.8},
+  {month:"Nov-25",mode:"V/Line Train",pct:87.5},{month:"Dec-25",mode:"V/Line Train",pct:85.1},
+  {month:"Jan-26",mode:"V/Line Train",pct:86.2},{month:"Feb-26",mode:"V/Line Train",pct:87.8},
+  {month:"Mar-26",mode:"V/Line Train",pct:87.3},{month:"Apr-26",mode:"V/Line Train",pct:83.7},
+  {month:"May-25",mode:"Metro Bus",pct:90.2},{month:"Jun-25",mode:"Metro Bus",pct:89.8},
+  {month:"Jul-25",mode:"Metro Bus",pct:89.1},{month:"Aug-25",mode:"Metro Bus",pct:90.4},
+  {month:"Sep-25",mode:"Metro Bus",pct:91.1},{month:"Oct-25",mode:"Metro Bus",pct:90.7},
+  {month:"Nov-25",mode:"Metro Bus",pct:89.5},{month:"Dec-25",mode:"Metro Bus",pct:87.9},
+  {month:"Jan-26",mode:"Metro Bus",pct:88.3},{month:"Feb-26",mode:"Metro Bus",pct:89.6},
+  {month:"Mar-26",mode:"Metro Bus",pct:87.6},{month:"Apr-26",mode:"Metro Bus",pct:88.5}
+];
+
+var TARGETS = {"Metro Train":92,"Metro Tram":82,"V/Line Train":92,"Metro Bus":86};
+var HEAT = MONTHLY.map(function(d){
+  return {month:d.month, mode:d.mode, pct:d.pct,
+          status: d.pct >= TARGETS[d.mode] ? "Above target" : "Below target"};
+});
+
+var LINES = [
+  {line:"Stony Point",  peak:85.2, offpeak:90.4, cancel:723, delay:5.8, dist:62, group:"Outer South"},
+  {line:"Mernda",       peak:86.5, offpeak:91.8, cancel:634, delay:5.2, dist:38, group:"Outer North"},
+  {line:"Hurstbridge",  peak:87.3, offpeak:92.6, cancel:578, delay:4.9, dist:36, group:"Outer North"},
+  {line:"Pakenham",     peak:88.7, offpeak:93.8, cancel:512, delay:4.5, dist:56, group:"Outer East"},
+  {line:"Lilydale",     peak:88.9, offpeak:93.7, cancel:467, delay:4.3, dist:37, group:"Outer East"},
+  {line:"Belgrave",     peak:89.4, offpeak:94.1, cancel:445, delay:4.1, dist:42, group:"Outer East"},
+  {line:"Sunbury",      peak:89.6, offpeak:94.4, cancel:421, delay:3.9, dist:47, group:"Outer West"},
+  {line:"Cranbourne",   peak:90.1, offpeak:95.2, cancel:389, delay:3.7, dist:41, group:"Outer South"},
+  {line:"Craigieburn",  peak:90.3, offpeak:95.0, cancel:356, delay:3.5, dist:33, group:"Outer North"},
+  {line:"Werribee",     peak:91.1, offpeak:95.6, cancel:322, delay:3.3, dist:32, group:"Inner West"},
+  {line:"Alamein",      peak:91.2, offpeak:95.8, cancel:312, delay:3.2, dist:18, group:"Inner East"},
+  {line:"Frankston",    peak:91.8, offpeak:96.1, cancel:298, delay:3.0, dist:43, group:"Outer South"},
+  {line:"Upfield",      peak:92.4, offpeak:96.3, cancel:267, delay:2.8, dist:15, group:"Inner North"},
+  {line:"Glen Waverley",peak:93.2, offpeak:96.8, cancel:201, delay:2.4, dist:21, group:"Inner East"},
+  {line:"Williamstown", peak:93.8, offpeak:97.0, cancel:189, delay:2.3, dist:13, group:"Inner West"},
+  {line:"Sandringham",  peak:94.1, offpeak:97.2, cancel:178, delay:2.1, dist:14, group:"Inner South"}
+];
+
+// Group colours for delay chart
+var GROUP_COLORS = {
+  "Outer North":"#7c3aed","Outer East":"#2563eb","Outer South":"#dc2626",
+  "Outer West":"#ea580c","Inner East":"#16a34a","Inner West":"#0891b2",
+  "Inner North":"#ca8a04","Inner South":"#db2777"
+};
+var LINES_WITH_COLOR = LINES.map(function(d){
+  return Object.assign({}, d, {color: GROUP_COLORS[d.group]});
+});
+
+var YOY = [
+  {mode:"V/Line Train", change:-4.7, color:"#dc2626"},
+  {mode:"Metro Train",  change:-1.0, color:"#2563eb"},
+  {mode:"Metro Tram",   change: 0.4, color:"#16a34a"},
+  {mode:"Metro Bus",    change: 0.9, color:"#ea580c"}
+];
+
+// ── SHARED CONFIG ────────────────────────────────────────────────
+var CFG = {
+  background: "transparent",
+  font: "Source Sans 3, sans-serif",
+  axis: {
+    gridColor:"#eeeeee", domainColor:"#cccccc", tickColor:"#cccccc",
+    labelColor:"#555555", titleColor:"#888888",
+    labelFontSize:11, titleFontSize:11
+  },
+  legend: {
+    labelColor:"#555555", titleColor:"#888888",
+    labelFontSize:11, titleFontSize:11
+  },
+  view: {stroke:null}
+};
+
+var MODE_COLORS = {
+  domain:["Metro Train","Metro Tram","V/Line Train","Metro Bus"],
+  range: ["#2563eb",    "#16a34a",    "#7c3aed",     "#ea580c"]
+};
+
+function draw(id, spec) {
+  vegaEmbed("#"+id, spec, {actions:false, config:CFG}).catch(function(err){
+    var el = document.getElementById(id);
+    if(el) el.innerHTML = '<p style="color:red;font-size:12px;padding:8px">Error in '+id+': '+err.message+'</p>';
+    console.error(id, err);
+  });
+}
+
+// ── C1: Punctuality vs Target ─────────────────────────────────────
+draw("c1", {
+  "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+  "width":380, "height":140,
+  "data":{"values":APRIL},
+  "layer":[
+    {
+      "mark":{"type":"rule","strokeWidth":2},
+      "encoding":{
+        "y":{"field":"mode","type":"nominal","sort":{"field":"pct","order":"ascending"},"axis":{"title":null,"labelFontSize":11}},
+        "x":{"field":"pct","type":"quantitative","scale":{"domain":[75,100]},"axis":{"title":"On-time rate (%)","tickCount":5}},
+        "x2":{"value":0},
+        "color":{
+          "condition":{"test":"datum.pct < datum.target","value":"#dc2626"},
+          "value":"#16a34a"
+        }
+      }
+    },
+    {
+      "mark":{"type":"point","filled":true,"size":120},
+      "encoding":{
+        "y":{"field":"mode","type":"nominal","sort":{"field":"pct","order":"ascending"}},
+        "x":{"field":"pct","type":"quantitative"},
+        "color":{
+          "condition":{"test":"datum.pct < datum.target","value":"#dc2626"},
+          "value":"#16a34a"
+        },
+        "tooltip":[
+          {"field":"mode","title":"Mode"},
+          {"field":"pct","title":"On-time (%)","format":".1f"},
+          {"field":"target","title":"Target (%)","format":".1f"}
+        ]
+      }
+    },
+    {
+      "mark":{"type":"tick","thickness":3,"size":24,"color":"#ca8a04"},
+      "encoding":{
+        "y":{"field":"mode","type":"nominal","sort":{"field":"pct","order":"ascending"}},
+        "x":{"field":"target","type":"quantitative"},
+        "tooltip":[{"field":"mode","title":"Mode"},{"field":"target","title":"Target (%)"}]
+      }
+    },
+    {
+      "mark":{"type":"text","align":"left","dx":8,"fontSize":11,"fontWeight":"600"},
+      "encoding":{
+        "y":{"field":"mode","type":"nominal","sort":{"field":"pct","order":"ascending"}},
+        "x":{"field":"pct","type":"quantitative"},
+        "text":{"field":"pct","format":".1f"},
+        "color":{
+          "condition":{"test":"datum.pct < datum.target","value":"#dc2626"},
+          "value":"#16a34a"
+        }
+      }
+    }
+  ]
+});
+
+// ── C2: Reliability vs Target ─────────────────────────────────────
+draw("c2", {
+  "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+  "width":380, "height":140,
+  "data":{"values":APRIL},
+  "layer":[
+    {
+      "mark":{"type":"rule","strokeWidth":2},
+      "encoding":{
+        "y":{"field":"mode","type":"nominal","sort":{"field":"rel","order":"ascending"},"axis":{"title":null,"labelFontSize":11}},
+        "x":{"field":"rel","type":"quantitative","scale":{"domain":[94,101]},"axis":{"title":"Reliability (%)","tickCount":4}},
+        "x2":{"value":0},
+        "color":{"field":"mode","type":"nominal","scale":MODE_COLORS,"legend":null}
+      }
+    },
+    {
+      "mark":{"type":"point","filled":true,"size":120},
+      "encoding":{
+        "y":{"field":"mode","type":"nominal","sort":{"field":"rel","order":"ascending"}},
+        "x":{"field":"rel","type":"quantitative"},
+        "color":{"field":"mode","type":"nominal","scale":MODE_COLORS,"legend":null},
+        "tooltip":[
+          {"field":"mode","title":"Mode"},
+          {"field":"rel","title":"Reliability (%)","format":".1f"},
+          {"field":"rel_target","title":"Target (%)","format":".1f"}
+        ]
+      }
+    },
+    {
+      "mark":{"type":"tick","thickness":3,"size":24,"color":"#ca8a04"},
+      "encoding":{
+        "y":{"field":"mode","type":"nominal","sort":{"field":"rel","order":"ascending"}},
+        "x":{"field":"rel_target","type":"quantitative"},
+        "tooltip":[{"field":"mode","title":"Mode"},{"field":"rel_target","title":"Target (%)"}]
+      }
+    },
+    {
+      "mark":{"type":"text","align":"left","dx":8,"fontSize":11,"fontWeight":"600"},
+      "encoding":{
+        "y":{"field":"mode","type":"nominal","sort":{"field":"rel","order":"ascending"}},
+        "x":{"field":"rel","type":"quantitative"},
+        "text":{"field":"rel","format":".1f"},
+        "color":{"field":"mode","type":"nominal","scale":MODE_COLORS,"legend":null}
+      }
+    }
+  ]
+});
+
+// ── C3: Multi-line trend ──────────────────────────────────────────
+draw("c3", {
+  "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+  "width":860, "height":220,
+  "data":{"values":MONTHLY},
+  "params":[{"name":"sel","select":{"type":"point","fields":["mode"],"on":"click"},"bind":"legend"}],
+  "mark":{"type":"line","point":{"filled":true,"size":45},"strokeWidth":2.5,"interpolate":"monotone"},
+  "encoding":{
+    "x":{"field":"month","type":"ordinal","sort":MONTHS,"axis":{"title":null,"labelAngle":-30}},
+    "y":{"field":"pct","type":"quantitative","scale":{"domain":[78,97]},"axis":{"title":"On-time (%)","tickCount":5}},
+    "color":{"field":"mode","type":"nominal","scale":MODE_COLORS,"legend":{"title":"Mode — click to highlight"}},
+    "opacity":{"condition":{"param":"sel","value":1},"value":0.15},
+    "tooltip":[
+      {"field":"month","title":"Month"},
+      {"field":"mode","title":"Mode"},
+      {"field":"pct","title":"Punctuality (%)","format":".1f"}
+    ]
+  }
+});
+
+// ── C4–C6: Single-mode bar charts ─────────────────────────────────
+var modeList = ["Metro Train","Metro Tram","V/Line Train"];
+var modeColors = ["#2563eb","#16a34a","#7c3aed"];
+var modeScales = [[91,96],[80,86],[82,90]];
+modeList.forEach(function(mode, i){
+  var vals = MONTHLY.filter(function(d){ return d.mode===mode; });
+  var domainMin = modeScales[i][0];
+  var domainMax = modeScales[i][1];
+  draw("c"+(4+i), {
+    "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+    "width":220, "height":120,
+    "data":{"values":vals},
+    "layer":[
+      {
+        "mark":{"type":"rule","color":"#e5e7eb","strokeWidth":1},
+        "encoding":{
+          "x":{"field":"month","type":"ordinal","sort":MONTHS},
+          "y":{"field":"pct","type":"quantitative","scale":{"domain":modeScales[i]}},
+          "y2":{"value":120}
+        }
+      },
+      {
+        "mark":{"type":"line","color":modeColors[i],"strokeWidth":1.5,"interpolate":"monotone"},
+        "encoding":{
+          "x":{"field":"month","type":"ordinal","sort":MONTHS,
+               "axis":{"title":null,"labelAngle":-45,"labelFontSize":9}},
+          "y":{"field":"pct","type":"quantitative",
+               "scale":{"domain":modeScales[i]},
+               "axis":{"title":"On-time (%)","tickCount":4}}
+        }
+      },
+      {
+        "mark":{"type":"point","filled":true,"size":50,"color":modeColors[i]},
+        "encoding":{
+          "x":{"field":"month","type":"ordinal","sort":MONTHS},
+          "y":{"field":"pct","type":"quantitative","scale":{"domain":modeScales[i]}},
+          "tooltip":[
+            {"field":"month","title":"Month"},
+            {"field":"pct","title":"On-time (%)","format":".1f"}
+          ]
+        }
+      }
+    ]
+  });
+});
+
+// ── C7: Peak punctuality by line ──────────────────────────────────
+draw("c7", {
+  "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+  "width":860, "height":300,
+  "data":{"values":LINES},
+  "layer":[
+    {
+      "mark":{"type":"rule","strokeWidth":2},
+      "encoding":{
+        "y":{"field":"line","type":"nominal","sort":{"field":"peak","order":"ascending"},
+             "axis":{"title":null,"labelFontSize":11}},
+        "x":{"field":"peak","type":"quantitative","scale":{"domain":[83,97]},
+             "axis":{"title":"Peak on-time rate (%)","tickCount":8}},
+        "x2":{"value":0},
+        "color":{"field":"peak","type":"quantitative",
+                 "scale":{"domain":[84,95],"range":["#dc2626","#ca8a04","#16a34a"]},
+                 "legend":null}
+      }
+    },
+    {
+      "mark":{"type":"point","filled":true,"size":100},
+      "encoding":{
+        "y":{"field":"line","type":"nominal","sort":{"field":"peak","order":"ascending"}},
+        "x":{"field":"peak","type":"quantitative"},
+        "color":{"field":"peak","type":"quantitative",
+                 "scale":{"domain":[84,95],"range":["#dc2626","#ca8a04","#16a34a"]},
+                 "legend":{"title":"Punctuality (%)"}},
+        "tooltip":[
+          {"field":"line","title":"Train Line"},
+          {"field":"peak","title":"Peak On-time (%)","format":".1f"},
+          {"field":"cancel","title":"Annual Cancellations"},
+          {"field":"dist","title":"Distance from CBD (km)"}
+        ]
+      }
+    },
+    {
+      "mark":{"type":"text","align":"left","dx":8,"fontSize":11,"fontWeight":"600"},
+      "encoding":{
+        "y":{"field":"line","type":"nominal","sort":{"field":"peak","order":"ascending"}},
+        "x":{"field":"peak","type":"quantitative"},
+        "text":{"field":"peak","format":".1f"},
+        "color":{"field":"peak","type":"quantitative",
+                 "scale":{"domain":[84,95],"range":["#dc2626","#ca8a04","#16a34a"]}}
+      }
+    }
+  ]
+});
+
+// ── C8: Cancellations ─────────────────────────────────────────────
+draw("c8", {
+  "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+  "width":380, "height":280,
+  "data":{"values":LINES},
+  "mark":{"type":"bar","height":14,"color":"#2563eb"},
+  "encoding":{
+    "y":{"field":"line","type":"nominal","sort":{"field":"cancel","order":"descending"},
+         "axis":{"title":null,"labelFontSize":11}},
+    "x":{"field":"cancel","type":"quantitative","axis":{"title":"Cancellations (2025)"}},
+    "tooltip":[
+      {"field":"line","title":"Line"},
+      {"field":"cancel","title":"Annual Cancellations"},
+      {"field":"dist","title":"Distance from CBD (km)"}
+    ]
+  }
+});
+
+// ── C9: Peak vs Off-peak scatter ──────────────────────────────────
+draw("c9", {
+  "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+  "width":380, "height":280,
+  "data":{"values":LINES},
+  "mark":{"type":"point","filled":true,"size":80,"opacity":0.85},
+  "encoding":{
+    "x":{"field":"peak","type":"quantitative","scale":{"domain":[83,96]},
+         "axis":{"title":"Peak punctuality (%)"}},
+    "y":{"field":"offpeak","type":"quantitative","scale":{"domain":[88,99]},
+         "axis":{"title":"Off-peak punctuality (%)"}},
+    "color":{"field":"peak","type":"quantitative",
+             "scale":{"domain":[84,95],"range":["#dc2626","#ca8a04","#16a34a"]},
+             "legend":null},
+    "tooltip":[
+      {"field":"line","title":"Line"},
+      {"field":"peak","title":"Peak (%)","format":".1f"},
+      {"field":"offpeak","title":"Off-peak (%)","format":".1f"}
+    ]
+  }
+});
+
+// ── C10: Distance vs Punctuality bubble ───────────────────────────
+draw("c10", {
+  "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+  "width":860, "height":300,
+  "data":{"values":LINES},
+  "layer":[
+    {
+      "mark":{"type":"point","filled":true,"opacity":0.85},
+      "encoding":{
+        "x":{"field":"dist","type":"quantitative",
+             "axis":{"title":"Distance of terminus from CBD (km)"}},
+        "y":{"field":"peak","type":"quantitative","scale":{"domain":[83,96]},
+             "axis":{"title":"Peak on-time rate (%)"}},
+        "size":{"field":"cancel","type":"quantitative",
+                "scale":{"domain":[100,800],"range":[60,700]},
+                "legend":{"title":"Annual cancellations"}},
+        "color":{"field":"peak","type":"quantitative",
+                 "scale":{"domain":[84,95],"range":["#dc2626","#ca8a04","#16a34a"]},
+                 "legend":null},
+        "tooltip":[
+          {"field":"line","title":"Line"},
+          {"field":"dist","title":"Distance from CBD (km)"},
+          {"field":"peak","title":"Peak on-time (%)","format":".1f"},
+          {"field":"cancel","title":"Annual Cancellations"},
+          {"field":"group","title":"Zone"}
+        ]
+      }
+    },
+    {
+      "mark":{"type":"text","dy":-12,"fontSize":10,"color":"#444"},
+      "encoding":{
+        "x":{"field":"dist","type":"quantitative"},
+        "y":{"field":"peak","type":"quantitative"},
+        "text":{"field":"line","type":"nominal"}
+      }
+    }
+  ]
+});
+
+// ── C11: Heatmap ──────────────────────────────────────────────────
+draw("c11", {
+  "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+  "width":380, "height":120,
+  "data":{"values":HEAT},
+  "mark":{"type":"rect"},
+  "encoding":{
+    "x":{"field":"month","type":"ordinal","sort":MONTHS,
+         "axis":{"title":null,"labelAngle":-40,"labelFontSize":10}},
+    "y":{"field":"mode","type":"nominal","axis":{"title":null,"labelFontSize":11}},
+    "color":{"field":"status","type":"nominal",
+             "scale":{"domain":["Above target","Below target"],"range":["#16a34a","#dc2626"]},
+             "legend":{"title":null}},
+    "tooltip":[
+      {"field":"mode","title":"Mode"},
+      {"field":"month","title":"Month"},
+      {"field":"pct","title":"Punctuality (%)","format":".1f"},
+      {"field":"status","title":"Status"}
+    ]
+  }
+});
+
+// ── C12: Year-on-year ─────────────────────────────────────────────
+draw("c12", {
+  "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+  "width":380, "height":120,
+  "data":{"values":YOY},
+  "mark":{"type":"bar","height":22},
+  "encoding":{
+    "y":{"field":"mode","type":"nominal","sort":{"field":"change","order":"ascending"},
+         "axis":{"title":null,"labelFontSize":11}},
+    "x":{"field":"change","type":"quantitative",
+         "axis":{"title":"Change in on-time rate (percentage points)","format":"+.1f"}},
+    "color":{"field":"mode","type":"nominal","scale":MODE_COLORS,"legend":null},
+    "tooltip":[
+      {"field":"mode","title":"Mode"},
+      {"field":"change","title":"Year-on-year change (pp)","format":"+.2f"}
+    ]
+  }
+});
+
+// ── C13: Delay minutes by line (colour-coded by zone group) ───────
+draw("c13", {
+  "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+  "width":860, "height":220,
+  "data":{"values":LINES_WITH_COLOR},
+  "layer":[
+    {
+      "mark":{"type":"bar","height":16},
+      "encoding":{
+        "y":{"field":"line","type":"nominal","sort":{"field":"delay","order":"descending"},
+             "axis":{"title":null,"labelFontSize":11}},
+        "x":{"field":"delay","type":"quantitative","scale":{"domain":[0,7]},
+             "axis":{"title":"Average minutes late per delayed service","tickCount":7}},
+        "color":{"field":"group","type":"nominal",
+                 "scale":{
+                   "domain":["Outer North","Outer East","Outer South","Outer West","Inner East","Inner West","Inner North","Inner South"],
+                   "range": ["#7c3aed",   "#2563eb",   "#dc2626",   "#ea580c",  "#16a34a",   "#0891b2",   "#ca8a04",    "#db2777"]
+                 },
+                 "legend":{"title":"Line group"}},
+        "tooltip":[
+          {"field":"line","title":"Train Line"},
+          {"field":"delay","title":"Avg delay (min)","format":".1f"},
+          {"field":"group","title":"Group"},
+          {"field":"dist","title":"Distance from CBD (km)"}
+        ]
+      }
+    },
+    {
+      "mark":{"type":"text","align":"left","dx":4,"fontSize":10,"color":"#555"},
+      "encoding":{
+        "y":{"field":"line","type":"nominal","sort":{"field":"delay","order":"descending"}},
+        "x":{"field":"delay","type":"quantitative"},
+        "text":{"field":"delay","format":".1f"}
+      }
+    }
+  ]
+});
+</script>
+</body>
+</html>
