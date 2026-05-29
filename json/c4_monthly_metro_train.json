@@ -1,0 +1,156 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Line and dot chart showing monthly on-time punctuality for Metro Train from May 2025 to April 2026. Y-axis is scaled to data range to show variation clearly.",
+  "width": 220,
+  "height": 120,
+  "data": {
+    "values": [
+      {
+        "month": "May-25",
+        "pct": 94.1
+      },
+      {
+        "month": "Jun-25",
+        "pct": 93.8
+      },
+      {
+        "month": "Jul-25",
+        "pct": 93.2
+      },
+      {
+        "month": "Aug-25",
+        "pct": 94.5
+      },
+      {
+        "month": "Sep-25",
+        "pct": 94.7
+      },
+      {
+        "month": "Oct-25",
+        "pct": 95.1
+      },
+      {
+        "month": "Nov-25",
+        "pct": 94.9
+      },
+      {
+        "month": "Dec-25",
+        "pct": 92.6
+      },
+      {
+        "month": "Jan-26",
+        "pct": 93.1
+      },
+      {
+        "month": "Feb-26",
+        "pct": 94.0
+      },
+      {
+        "month": "Mar-26",
+        "pct": 94.3
+      },
+      {
+        "month": "Apr-26",
+        "pct": 93.4
+      }
+    ]
+  },
+  "layer": [
+    {
+      "mark": {
+        "type": "line",
+        "color": "#2563eb",
+        "strokeWidth": 1.5,
+        "interpolate": "monotone"
+      },
+      "encoding": {
+        "x": {
+          "field": "month",
+          "type": "ordinal",
+          "sort": [
+            "May-25",
+            "Jun-25",
+            "Jul-25",
+            "Aug-25",
+            "Sep-25",
+            "Oct-25",
+            "Nov-25",
+            "Dec-25",
+            "Jan-26",
+            "Feb-26",
+            "Mar-26",
+            "Apr-26"
+          ],
+          "axis": {
+            "title": null,
+            "labelAngle": -45,
+            "labelFontSize": 9
+          }
+        },
+        "y": {
+          "field": "pct",
+          "type": "quantitative",
+          "scale": {
+            "domain": [
+              91,
+              96
+            ]
+          },
+          "axis": {
+            "title": "On-time (%)",
+            "tickCount": 4
+          }
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "point",
+        "filled": true,
+        "size": 50,
+        "color": "#2563eb"
+      },
+      "encoding": {
+        "x": {
+          "field": "month",
+          "type": "ordinal",
+          "sort": [
+            "May-25",
+            "Jun-25",
+            "Jul-25",
+            "Aug-25",
+            "Sep-25",
+            "Oct-25",
+            "Nov-25",
+            "Dec-25",
+            "Jan-26",
+            "Feb-26",
+            "Mar-26",
+            "Apr-26"
+          ]
+        },
+        "y": {
+          "field": "pct",
+          "type": "quantitative",
+          "scale": {
+            "domain": [
+              91,
+              96
+            ]
+          }
+        },
+        "tooltip": [
+          {
+            "field": "month",
+            "title": "Month"
+          },
+          {
+            "field": "pct",
+            "title": "On-time (%)",
+            "format": ".1f"
+          }
+        ]
+      }
+    }
+  ]
+}

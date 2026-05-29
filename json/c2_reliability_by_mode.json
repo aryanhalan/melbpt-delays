@@ -1,0 +1,96 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Lollipop chart comparing April 2026 reliability (% of services that actually ran) for each transport mode against its government target. Colour matches mode identity.",
+  "width": 380,
+  "height": 140,
+  "data": {
+    "values": [
+      { "mode": "V/Line Train", "rel": 97.0, "rel_target": 96.0 },
+      { "mode": "Metro Tram",   "rel": 98.8, "rel_target": 98.5 },
+      { "mode": "Metro Bus",    "rel": 99.3, "rel_target": 98.0 },
+      { "mode": "Metro Train",  "rel": 98.5, "rel_target": 98.5 }
+    ]
+  },
+  "layer": [
+    {
+      "mark": { "type": "rule", "strokeWidth": 2 },
+      "encoding": {
+        "y": {
+          "field": "mode", "type": "nominal",
+          "sort": { "field": "rel", "order": "ascending" },
+          "axis": { "title": null, "labelFontSize": 11 }
+        },
+        "x": {
+          "field": "rel", "type": "quantitative",
+          "scale": { "domain": [94, 101] },
+          "axis": { "title": "Reliability (%)", "tickCount": 4 }
+        },
+        "x2": { "value": 0 },
+        "color": {
+          "field": "mode", "type": "nominal",
+          "scale": {
+            "domain": ["Metro Train", "Metro Tram", "V/Line Train", "Metro Bus"],
+            "range":  ["#2563eb",    "#16a34a",    "#7c3aed",     "#ea580c"]
+          },
+          "legend": null
+        }
+      }
+    },
+    {
+      "mark": { "type": "point", "filled": true, "size": 120 },
+      "encoding": {
+        "y": {
+          "field": "mode", "type": "nominal",
+          "sort": { "field": "rel", "order": "ascending" }
+        },
+        "x": { "field": "rel", "type": "quantitative" },
+        "color": {
+          "field": "mode", "type": "nominal",
+          "scale": {
+            "domain": ["Metro Train", "Metro Tram", "V/Line Train", "Metro Bus"],
+            "range":  ["#2563eb",    "#16a34a",    "#7c3aed",     "#ea580c"]
+          },
+          "legend": null
+        },
+        "tooltip": [
+          { "field": "mode",       "title": "Mode" },
+          { "field": "rel",        "title": "Reliability (%)", "format": ".1f" },
+          { "field": "rel_target", "title": "Target (%)",      "format": ".1f" }
+        ]
+      }
+    },
+    {
+      "mark": { "type": "tick", "thickness": 3, "size": 24, "color": "#ca8a04" },
+      "encoding": {
+        "y": {
+          "field": "mode", "type": "nominal",
+          "sort": { "field": "rel", "order": "ascending" }
+        },
+        "x": { "field": "rel_target", "type": "quantitative" },
+        "tooltip": [
+          { "field": "mode",       "title": "Mode" },
+          { "field": "rel_target", "title": "Target (%)" }
+        ]
+      }
+    },
+    {
+      "mark": { "type": "text", "align": "left", "dx": 8, "fontSize": 11, "fontWeight": "600" },
+      "encoding": {
+        "y": {
+          "field": "mode", "type": "nominal",
+          "sort": { "field": "rel", "order": "ascending" }
+        },
+        "x": { "field": "rel", "type": "quantitative" },
+        "text": { "field": "rel", "format": ".1f" },
+        "color": {
+          "field": "mode", "type": "nominal",
+          "scale": {
+            "domain": ["Metro Train", "Metro Tram", "V/Line Train", "Metro Bus"],
+            "range":  ["#2563eb",    "#16a34a",    "#7c3aed",     "#ea580c"]
+          },
+          "legend": null
+        }
+      }
+    }
+  ]
+}

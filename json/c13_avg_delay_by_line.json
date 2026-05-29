@@ -1,0 +1,281 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Horizontal lollipop chart showing average minutes late per delayed service for each Metro train line, colour-coded by geographic zone group. Stony Point (5.8 min) is the worst; Sandringham (2.1 min) is the best.",
+  "width": 860,
+  "height": 220,
+  "data": {
+    "values": [
+      {
+        "line": "Stony Point",
+        "peak": 85.2,
+        "offpeak": 90.4,
+        "cancel": 723,
+        "delay": 5.8,
+        "dist": 62,
+        "group": "Outer South",
+        "color": "#dc2626"
+      },
+      {
+        "line": "Mernda",
+        "peak": 86.5,
+        "offpeak": 91.8,
+        "cancel": 634,
+        "delay": 5.2,
+        "dist": 38,
+        "group": "Outer North",
+        "color": "#7c3aed"
+      },
+      {
+        "line": "Hurstbridge",
+        "peak": 87.3,
+        "offpeak": 92.6,
+        "cancel": 578,
+        "delay": 4.9,
+        "dist": 36,
+        "group": "Outer North",
+        "color": "#7c3aed"
+      },
+      {
+        "line": "Pakenham",
+        "peak": 88.7,
+        "offpeak": 93.8,
+        "cancel": 512,
+        "delay": 4.5,
+        "dist": 56,
+        "group": "Outer East",
+        "color": "#2563eb"
+      },
+      {
+        "line": "Lilydale",
+        "peak": 88.9,
+        "offpeak": 93.7,
+        "cancel": 467,
+        "delay": 4.3,
+        "dist": 37,
+        "group": "Outer East",
+        "color": "#2563eb"
+      },
+      {
+        "line": "Belgrave",
+        "peak": 89.4,
+        "offpeak": 94.1,
+        "cancel": 445,
+        "delay": 4.1,
+        "dist": 42,
+        "group": "Outer East",
+        "color": "#2563eb"
+      },
+      {
+        "line": "Sunbury",
+        "peak": 89.6,
+        "offpeak": 94.4,
+        "cancel": 421,
+        "delay": 3.9,
+        "dist": 47,
+        "group": "Outer West",
+        "color": "#ea580c"
+      },
+      {
+        "line": "Cranbourne",
+        "peak": 90.1,
+        "offpeak": 95.2,
+        "cancel": 389,
+        "delay": 3.7,
+        "dist": 41,
+        "group": "Outer South",
+        "color": "#dc2626"
+      },
+      {
+        "line": "Craigieburn",
+        "peak": 90.3,
+        "offpeak": 95.0,
+        "cancel": 356,
+        "delay": 3.5,
+        "dist": 33,
+        "group": "Outer North",
+        "color": "#7c3aed"
+      },
+      {
+        "line": "Werribee",
+        "peak": 91.1,
+        "offpeak": 95.6,
+        "cancel": 322,
+        "delay": 3.3,
+        "dist": 32,
+        "group": "Inner West",
+        "color": "#0891b2"
+      },
+      {
+        "line": "Alamein",
+        "peak": 91.2,
+        "offpeak": 95.8,
+        "cancel": 312,
+        "delay": 3.2,
+        "dist": 18,
+        "group": "Inner East",
+        "color": "#16a34a"
+      },
+      {
+        "line": "Frankston",
+        "peak": 91.8,
+        "offpeak": 96.1,
+        "cancel": 298,
+        "delay": 3.0,
+        "dist": 43,
+        "group": "Outer South",
+        "color": "#dc2626"
+      },
+      {
+        "line": "Upfield",
+        "peak": 92.4,
+        "offpeak": 96.3,
+        "cancel": 267,
+        "delay": 2.8,
+        "dist": 15,
+        "group": "Inner North",
+        "color": "#ca8a04"
+      },
+      {
+        "line": "Glen Waverley",
+        "peak": 93.2,
+        "offpeak": 96.8,
+        "cancel": 201,
+        "delay": 2.4,
+        "dist": 21,
+        "group": "Inner East",
+        "color": "#16a34a"
+      },
+      {
+        "line": "Williamstown",
+        "peak": 93.8,
+        "offpeak": 97.0,
+        "cancel": 189,
+        "delay": 2.3,
+        "dist": 13,
+        "group": "Inner West",
+        "color": "#0891b2"
+      },
+      {
+        "line": "Sandringham",
+        "peak": 94.1,
+        "offpeak": 97.2,
+        "cancel": 178,
+        "delay": 2.1,
+        "dist": 14,
+        "group": "Inner South",
+        "color": "#db2777"
+      }
+    ]
+  },
+  "layer": [
+    {
+      "mark": {
+        "type": "bar",
+        "height": 16
+      },
+      "encoding": {
+        "y": {
+          "field": "line",
+          "type": "nominal",
+          "sort": {
+            "field": "delay",
+            "order": "descending"
+          },
+          "axis": {
+            "title": null,
+            "labelFontSize": 11
+          }
+        },
+        "x": {
+          "field": "delay",
+          "type": "quantitative",
+          "scale": {
+            "domain": [
+              0,
+              7
+            ]
+          },
+          "axis": {
+            "title": "Average minutes late per delayed service",
+            "tickCount": 7
+          }
+        },
+        "color": {
+          "field": "group",
+          "type": "nominal",
+          "scale": {
+            "domain": [
+              "Outer North",
+              "Outer East",
+              "Outer South",
+              "Outer West",
+              "Inner East",
+              "Inner West",
+              "Inner North",
+              "Inner South"
+            ],
+            "range": [
+              "#7c3aed",
+              "#2563eb",
+              "#dc2626",
+              "#ea580c",
+              "#16a34a",
+              "#0891b2",
+              "#ca8a04",
+              "#db2777"
+            ]
+          },
+          "legend": {
+            "title": "Line group"
+          }
+        },
+        "tooltip": [
+          {
+            "field": "line",
+            "title": "Train Line"
+          },
+          {
+            "field": "delay",
+            "title": "Avg delay (min)",
+            "format": ".1f"
+          },
+          {
+            "field": "group",
+            "title": "Group"
+          },
+          {
+            "field": "dist",
+            "title": "Distance from CBD (km)"
+          }
+        ]
+      }
+    },
+    {
+      "mark": {
+        "type": "text",
+        "align": "left",
+        "dx": 4,
+        "fontSize": 10,
+        "color": "#555"
+      },
+      "encoding": {
+        "y": {
+          "field": "line",
+          "type": "nominal",
+          "sort": {
+            "field": "delay",
+            "order": "descending"
+          }
+        },
+        "x": {
+          "field": "delay",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "delay",
+          "format": ".1f"
+        }
+      }
+    }
+  ]
+}

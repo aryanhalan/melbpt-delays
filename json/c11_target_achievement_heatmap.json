@@ -1,0 +1,370 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Heatmap showing whether each transport mode met its punctuality target each month from May 2025 to April 2026. Green = above target, red = below target. V/Line is red across all 12 months.",
+  "width": 380,
+  "height": 120,
+  "data": {
+    "values": [
+      {
+        "month": "May-25",
+        "mode": "Metro Train",
+        "pct": 94.1,
+        "status": "Above target"
+      },
+      {
+        "month": "Jun-25",
+        "mode": "Metro Train",
+        "pct": 93.8,
+        "status": "Above target"
+      },
+      {
+        "month": "Jul-25",
+        "mode": "Metro Train",
+        "pct": 93.2,
+        "status": "Above target"
+      },
+      {
+        "month": "Aug-25",
+        "mode": "Metro Train",
+        "pct": 94.5,
+        "status": "Above target"
+      },
+      {
+        "month": "Sep-25",
+        "mode": "Metro Train",
+        "pct": 94.7,
+        "status": "Above target"
+      },
+      {
+        "month": "Oct-25",
+        "mode": "Metro Train",
+        "pct": 95.1,
+        "status": "Above target"
+      },
+      {
+        "month": "Nov-25",
+        "mode": "Metro Train",
+        "pct": 94.9,
+        "status": "Above target"
+      },
+      {
+        "month": "Dec-25",
+        "mode": "Metro Train",
+        "pct": 92.6,
+        "status": "Above target"
+      },
+      {
+        "month": "Jan-26",
+        "mode": "Metro Train",
+        "pct": 93.1,
+        "status": "Above target"
+      },
+      {
+        "month": "Feb-26",
+        "mode": "Metro Train",
+        "pct": 94.0,
+        "status": "Above target"
+      },
+      {
+        "month": "Mar-26",
+        "mode": "Metro Train",
+        "pct": 94.3,
+        "status": "Above target"
+      },
+      {
+        "month": "Apr-26",
+        "mode": "Metro Train",
+        "pct": 93.4,
+        "status": "Above target"
+      },
+      {
+        "month": "May-25",
+        "mode": "Metro Tram",
+        "pct": 84.2,
+        "status": "Above target"
+      },
+      {
+        "month": "Jun-25",
+        "mode": "Metro Tram",
+        "pct": 83.7,
+        "status": "Above target"
+      },
+      {
+        "month": "Jul-25",
+        "mode": "Metro Tram",
+        "pct": 82.9,
+        "status": "Above target"
+      },
+      {
+        "month": "Aug-25",
+        "mode": "Metro Tram",
+        "pct": 84.1,
+        "status": "Above target"
+      },
+      {
+        "month": "Sep-25",
+        "mode": "Metro Tram",
+        "pct": 84.8,
+        "status": "Above target"
+      },
+      {
+        "month": "Oct-25",
+        "mode": "Metro Tram",
+        "pct": 85.2,
+        "status": "Above target"
+      },
+      {
+        "month": "Nov-25",
+        "mode": "Metro Tram",
+        "pct": 84.5,
+        "status": "Above target"
+      },
+      {
+        "month": "Dec-25",
+        "mode": "Metro Tram",
+        "pct": 81.9,
+        "status": "Below target"
+      },
+      {
+        "month": "Jan-26",
+        "mode": "Metro Tram",
+        "pct": 82.4,
+        "status": "Above target"
+      },
+      {
+        "month": "Feb-26",
+        "mode": "Metro Tram",
+        "pct": 83.1,
+        "status": "Above target"
+      },
+      {
+        "month": "Mar-26",
+        "mode": "Metro Tram",
+        "pct": 82.1,
+        "status": "Above target"
+      },
+      {
+        "month": "Apr-26",
+        "mode": "Metro Tram",
+        "pct": 83.9,
+        "status": "Above target"
+      },
+      {
+        "month": "May-25",
+        "mode": "V/Line Train",
+        "pct": 88.1,
+        "status": "Below target"
+      },
+      {
+        "month": "Jun-25",
+        "mode": "V/Line Train",
+        "pct": 87.6,
+        "status": "Below target"
+      },
+      {
+        "month": "Jul-25",
+        "mode": "V/Line Train",
+        "pct": 86.9,
+        "status": "Below target"
+      },
+      {
+        "month": "Aug-25",
+        "mode": "V/Line Train",
+        "pct": 88.4,
+        "status": "Below target"
+      },
+      {
+        "month": "Sep-25",
+        "mode": "V/Line Train",
+        "pct": 87.2,
+        "status": "Below target"
+      },
+      {
+        "month": "Oct-25",
+        "mode": "V/Line Train",
+        "pct": 88.8,
+        "status": "Below target"
+      },
+      {
+        "month": "Nov-25",
+        "mode": "V/Line Train",
+        "pct": 87.5,
+        "status": "Below target"
+      },
+      {
+        "month": "Dec-25",
+        "mode": "V/Line Train",
+        "pct": 85.1,
+        "status": "Below target"
+      },
+      {
+        "month": "Jan-26",
+        "mode": "V/Line Train",
+        "pct": 86.2,
+        "status": "Below target"
+      },
+      {
+        "month": "Feb-26",
+        "mode": "V/Line Train",
+        "pct": 87.8,
+        "status": "Below target"
+      },
+      {
+        "month": "Mar-26",
+        "mode": "V/Line Train",
+        "pct": 87.3,
+        "status": "Below target"
+      },
+      {
+        "month": "Apr-26",
+        "mode": "V/Line Train",
+        "pct": 83.7,
+        "status": "Below target"
+      },
+      {
+        "month": "May-25",
+        "mode": "Metro Bus",
+        "pct": 90.2,
+        "status": "Above target"
+      },
+      {
+        "month": "Jun-25",
+        "mode": "Metro Bus",
+        "pct": 89.8,
+        "status": "Above target"
+      },
+      {
+        "month": "Jul-25",
+        "mode": "Metro Bus",
+        "pct": 89.1,
+        "status": "Above target"
+      },
+      {
+        "month": "Aug-25",
+        "mode": "Metro Bus",
+        "pct": 90.4,
+        "status": "Above target"
+      },
+      {
+        "month": "Sep-25",
+        "mode": "Metro Bus",
+        "pct": 91.1,
+        "status": "Above target"
+      },
+      {
+        "month": "Oct-25",
+        "mode": "Metro Bus",
+        "pct": 90.7,
+        "status": "Above target"
+      },
+      {
+        "month": "Nov-25",
+        "mode": "Metro Bus",
+        "pct": 89.5,
+        "status": "Above target"
+      },
+      {
+        "month": "Dec-25",
+        "mode": "Metro Bus",
+        "pct": 87.9,
+        "status": "Above target"
+      },
+      {
+        "month": "Jan-26",
+        "mode": "Metro Bus",
+        "pct": 88.3,
+        "status": "Above target"
+      },
+      {
+        "month": "Feb-26",
+        "mode": "Metro Bus",
+        "pct": 89.6,
+        "status": "Above target"
+      },
+      {
+        "month": "Mar-26",
+        "mode": "Metro Bus",
+        "pct": 87.6,
+        "status": "Above target"
+      },
+      {
+        "month": "Apr-26",
+        "mode": "Metro Bus",
+        "pct": 88.5,
+        "status": "Above target"
+      }
+    ]
+  },
+  "mark": {
+    "type": "rect"
+  },
+  "encoding": {
+    "x": {
+      "field": "month",
+      "type": "ordinal",
+      "sort": [
+        "May-25",
+        "Jun-25",
+        "Jul-25",
+        "Aug-25",
+        "Sep-25",
+        "Oct-25",
+        "Nov-25",
+        "Dec-25",
+        "Jan-26",
+        "Feb-26",
+        "Mar-26",
+        "Apr-26"
+      ],
+      "axis": {
+        "title": null,
+        "labelAngle": -40,
+        "labelFontSize": 10
+      }
+    },
+    "y": {
+      "field": "mode",
+      "type": "nominal",
+      "axis": {
+        "title": null,
+        "labelFontSize": 11
+      }
+    },
+    "color": {
+      "field": "status",
+      "type": "nominal",
+      "scale": {
+        "domain": [
+          "Above target",
+          "Below target"
+        ],
+        "range": [
+          "#16a34a",
+          "#dc2626"
+        ]
+      },
+      "legend": {
+        "title": null
+      }
+    },
+    "tooltip": [
+      {
+        "field": "mode",
+        "title": "Mode"
+      },
+      {
+        "field": "month",
+        "title": "Month"
+      },
+      {
+        "field": "pct",
+        "title": "Punctuality (%)",
+        "format": ".1f"
+      },
+      {
+        "field": "status",
+        "title": "Status"
+      }
+    ]
+  }
+}

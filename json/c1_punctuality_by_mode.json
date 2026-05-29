@@ -1,0 +1,84 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Lollipop chart comparing April 2026 punctuality for each transport mode against the government target. Red = below target, green = above target, yellow tick = target threshold.",
+  "width": 380,
+  "height": 140,
+  "data": {
+    "values": [
+      { "mode": "V/Line Train", "pct": 83.7, "target": 92.0 },
+      { "mode": "Metro Tram",   "pct": 83.9, "target": 82.0 },
+      { "mode": "Metro Bus",    "pct": 88.5, "target": 86.0 },
+      { "mode": "Metro Train",  "pct": 93.4, "target": 92.0 }
+    ]
+  },
+  "layer": [
+    {
+      "mark": { "type": "rule", "strokeWidth": 2 },
+      "encoding": {
+        "y": {
+          "field": "mode", "type": "nominal",
+          "sort": { "field": "pct", "order": "ascending" },
+          "axis": { "title": null, "labelFontSize": 11 }
+        },
+        "x": {
+          "field": "pct", "type": "quantitative",
+          "scale": { "domain": [75, 100] },
+          "axis": { "title": "On-time rate (%)", "tickCount": 5 }
+        },
+        "x2": { "value": 0 },
+        "color": {
+          "condition": { "test": "datum.pct < datum.target", "value": "#dc2626" },
+          "value": "#16a34a"
+        }
+      }
+    },
+    {
+      "mark": { "type": "point", "filled": true, "size": 120 },
+      "encoding": {
+        "y": {
+          "field": "mode", "type": "nominal",
+          "sort": { "field": "pct", "order": "ascending" }
+        },
+        "x": { "field": "pct", "type": "quantitative" },
+        "color": {
+          "condition": { "test": "datum.pct < datum.target", "value": "#dc2626" },
+          "value": "#16a34a"
+        },
+        "tooltip": [
+          { "field": "mode",   "title": "Mode" },
+          { "field": "pct",    "title": "On-time (%)",  "format": ".1f" },
+          { "field": "target", "title": "Target (%)", "format": ".1f" }
+        ]
+      }
+    },
+    {
+      "mark": { "type": "tick", "thickness": 3, "size": 24, "color": "#ca8a04" },
+      "encoding": {
+        "y": {
+          "field": "mode", "type": "nominal",
+          "sort": { "field": "pct", "order": "ascending" }
+        },
+        "x": { "field": "target", "type": "quantitative" },
+        "tooltip": [
+          { "field": "mode",   "title": "Mode" },
+          { "field": "target", "title": "Target (%)" }
+        ]
+      }
+    },
+    {
+      "mark": { "type": "text", "align": "left", "dx": 8, "fontSize": 11, "fontWeight": "600" },
+      "encoding": {
+        "y": {
+          "field": "mode", "type": "nominal",
+          "sort": { "field": "pct", "order": "ascending" }
+        },
+        "x": { "field": "pct", "type": "quantitative" },
+        "text": { "field": "pct", "format": ".1f" },
+        "color": {
+          "condition": { "test": "datum.pct < datum.target", "value": "#dc2626" },
+          "value": "#16a34a"
+        }
+      }
+    }
+  ]
+}

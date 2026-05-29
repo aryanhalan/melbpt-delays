@@ -1,0 +1,100 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Interactive multi-line chart showing monthly on-time punctuality for all four transport modes from May 2025 to April 2026. Click a mode in the legend to highlight it.",
+  "width": 860,
+  "height": 220,
+  "data": {
+    "values": [
+      {"month":"May-25","mode":"Metro Train","pct":94.1},
+      {"month":"Jun-25","mode":"Metro Train","pct":93.8},
+      {"month":"Jul-25","mode":"Metro Train","pct":93.2},
+      {"month":"Aug-25","mode":"Metro Train","pct":94.5},
+      {"month":"Sep-25","mode":"Metro Train","pct":94.7},
+      {"month":"Oct-25","mode":"Metro Train","pct":95.1},
+      {"month":"Nov-25","mode":"Metro Train","pct":94.9},
+      {"month":"Dec-25","mode":"Metro Train","pct":92.6},
+      {"month":"Jan-26","mode":"Metro Train","pct":93.1},
+      {"month":"Feb-26","mode":"Metro Train","pct":94.0},
+      {"month":"Mar-26","mode":"Metro Train","pct":94.3},
+      {"month":"Apr-26","mode":"Metro Train","pct":93.4},
+      {"month":"May-25","mode":"Metro Tram","pct":84.2},
+      {"month":"Jun-25","mode":"Metro Tram","pct":83.7},
+      {"month":"Jul-25","mode":"Metro Tram","pct":82.9},
+      {"month":"Aug-25","mode":"Metro Tram","pct":84.1},
+      {"month":"Sep-25","mode":"Metro Tram","pct":84.8},
+      {"month":"Oct-25","mode":"Metro Tram","pct":85.2},
+      {"month":"Nov-25","mode":"Metro Tram","pct":84.5},
+      {"month":"Dec-25","mode":"Metro Tram","pct":81.9},
+      {"month":"Jan-26","mode":"Metro Tram","pct":82.4},
+      {"month":"Feb-26","mode":"Metro Tram","pct":83.1},
+      {"month":"Mar-26","mode":"Metro Tram","pct":82.1},
+      {"month":"Apr-26","mode":"Metro Tram","pct":83.9},
+      {"month":"May-25","mode":"V/Line Train","pct":88.1},
+      {"month":"Jun-25","mode":"V/Line Train","pct":87.6},
+      {"month":"Jul-25","mode":"V/Line Train","pct":86.9},
+      {"month":"Aug-25","mode":"V/Line Train","pct":88.4},
+      {"month":"Sep-25","mode":"V/Line Train","pct":87.2},
+      {"month":"Oct-25","mode":"V/Line Train","pct":88.8},
+      {"month":"Nov-25","mode":"V/Line Train","pct":87.5},
+      {"month":"Dec-25","mode":"V/Line Train","pct":85.1},
+      {"month":"Jan-26","mode":"V/Line Train","pct":86.2},
+      {"month":"Feb-26","mode":"V/Line Train","pct":87.8},
+      {"month":"Mar-26","mode":"V/Line Train","pct":87.3},
+      {"month":"Apr-26","mode":"V/Line Train","pct":83.7},
+      {"month":"May-25","mode":"Metro Bus","pct":90.2},
+      {"month":"Jun-25","mode":"Metro Bus","pct":89.8},
+      {"month":"Jul-25","mode":"Metro Bus","pct":89.1},
+      {"month":"Aug-25","mode":"Metro Bus","pct":90.4},
+      {"month":"Sep-25","mode":"Metro Bus","pct":91.1},
+      {"month":"Oct-25","mode":"Metro Bus","pct":90.7},
+      {"month":"Nov-25","mode":"Metro Bus","pct":89.5},
+      {"month":"Dec-25","mode":"Metro Bus","pct":87.9},
+      {"month":"Jan-26","mode":"Metro Bus","pct":88.3},
+      {"month":"Feb-26","mode":"Metro Bus","pct":89.6},
+      {"month":"Mar-26","mode":"Metro Bus","pct":87.6},
+      {"month":"Apr-26","mode":"Metro Bus","pct":88.5}
+    ]
+  },
+  "params": [
+    {
+      "name": "sel",
+      "select": { "type": "point", "fields": ["mode"], "on": "click" },
+      "bind": "legend"
+    }
+  ],
+  "mark": {
+    "type": "line",
+    "point": { "filled": true, "size": 45 },
+    "strokeWidth": 2.5,
+    "interpolate": "monotone"
+  },
+  "encoding": {
+    "x": {
+      "field": "month", "type": "ordinal",
+      "sort": ["May-25","Jun-25","Jul-25","Aug-25","Sep-25","Oct-25","Nov-25","Dec-25","Jan-26","Feb-26","Mar-26","Apr-26"],
+      "axis": { "title": null, "labelAngle": -30 }
+    },
+    "y": {
+      "field": "pct", "type": "quantitative",
+      "scale": { "domain": [78, 97] },
+      "axis": { "title": "On-time (%)", "tickCount": 5 }
+    },
+    "color": {
+      "field": "mode", "type": "nominal",
+      "scale": {
+        "domain": ["Metro Train", "Metro Tram", "V/Line Train", "Metro Bus"],
+        "range":  ["#2563eb",    "#16a34a",    "#7c3aed",     "#ea580c"]
+      },
+      "legend": { "title": "Mode — click to highlight" }
+    },
+    "opacity": {
+      "condition": { "param": "sel", "value": 1 },
+      "value": 0.15
+    },
+    "tooltip": [
+      { "field": "month", "title": "Month" },
+      { "field": "mode",  "title": "Mode" },
+      { "field": "pct",   "title": "Punctuality (%)", "format": ".1f" }
+    ]
+  }
+}
